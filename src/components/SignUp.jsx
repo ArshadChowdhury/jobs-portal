@@ -15,6 +15,10 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { Paper } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useForm } from "react-hook-form";
+import { instance } from "../common/ApiSetup";
+import { useNavigate } from "react-router";
+// import { useState } from "react";
 
 function Copyright(props) {
   return (
@@ -39,14 +43,25 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    // watch,
+    // formState: { errors },
+  } = useForm();
+  const onSubmit = (data) => {
+    instance
+      .post("/auth/register", data)
+      // .then(function (response) {
+      //   sessionStorage.setItem("AUTH_TOKEN", response.data.access);
+      // })
+      .then(() => navigate("/sign-in"))
+      .catch(function (error) {
+        console.log(error);
+      });
   };
+  // const [date, setDate] = useState(null);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -101,29 +116,31 @@ export default function SignUp() {
               <Box
                 component="form"
                 noValidate
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit(onSubmit)}
                 sx={{ mt: 3 }}
               >
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
                       autoComplete="given-name"
-                      name="firstName"
+                      name="first_name"
                       required
                       fullWidth
-                      id="firstName"
+                      id="first_name"
                       label="First Name"
                       autoFocus
+                      {...register("first_name")}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <TextField
                       required
                       fullWidth
-                      id="lastName"
+                      id="last_name"
                       label="Last Name"
-                      name="lastName"
+                      name="last_name"
                       autoComplete="family-name"
+                      {...register("last_name")}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -134,6 +151,7 @@ export default function SignUp() {
                       label="Email Address"
                       name="email"
                       autoComplete="email"
+                      {...register("email")}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -143,7 +161,9 @@ export default function SignUp() {
                       name="dob"
                       autoComplete="dob"
                       sx={{ width: "100%" }}
-                      required
+                      // onChange={(e) => setDate(e)}
+                      // required
+                      // {...register("dob")}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -154,6 +174,7 @@ export default function SignUp() {
                       label="Phone Number"
                       name="phone"
                       autoComplete="phone"
+                      {...register("phone")}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -165,23 +186,30 @@ export default function SignUp() {
                       type="password"
                       id="password"
                       autoComplete="new-password"
+                      {...register("password")}
                     />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
                       required
                       fullWidth
-                      name="confirmPassword"
+                      name="password2"
                       label="Confirm Password"
                       type="password"
-                      id="confirmPassword"
+                      id="password2"
                       autoComplete="new-password"
+                      {...register("password2")}
                     />
                   </Grid>
                   <Grid item justifyContent={"start"} xs={12}>
                     <FormControlLabel
                       control={
-                        <Checkbox value="allowExtraEmails" color="primary" />
+                        <Checkbox
+                          id="allowExtraEmails"
+                          name="allowExtraEmails"
+                          value="allowExtraEmails"
+                          color="primary"
+                        />
                       }
                       label="By signing up you accept our terms and conditions."
                     />

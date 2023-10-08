@@ -12,6 +12,9 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useForm } from "react-hook-form";
+import { instance } from "../common/ApiSetup";
+import { useNavigate } from "react-router";
 
 function Copyright(props) {
   return (
@@ -36,13 +39,24 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    // watch,
+    // formState: { errors },
+  } = useForm();
+  const onSubmit = (data) => {
+    instance
+      .post("/auth/login", data)
+      .then(function (response) {
+        sessionStorage.setItem("AUTH_TOKEN", response.data.access);
+      })
+      .then(() => navigate("/dashboard"))
+      .catch(function (error) {
+        console.log(error);
+      });
+    console.log(data);
   };
 
   return (
@@ -85,7 +99,7 @@ export default function SignInSide() {
             <Box
               component="form"
               noValidate
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmit(onSubmit)}
               sx={{ mt: 1 }}
             >
               <TextField
@@ -97,6 +111,7 @@ export default function SignInSide() {
                 name="phone"
                 autoComplete="phone"
                 autoFocus
+                {...register("phone")}
               />
               {/* <TextField
                 required
@@ -116,6 +131,7 @@ export default function SignInSide() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                {...register("password")}
               />
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
